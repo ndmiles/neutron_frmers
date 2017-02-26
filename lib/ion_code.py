@@ -15,7 +15,7 @@ me = 9.10938188E-31               # electron rest mass (kg)
 mp = 1.67262158E-27               # proton rest mass (kg)
 
 
-q = (200.0e3 * ((2.0e-2)**2.0) / k)
+q = 200.0e3 * (2.0e-2 ** 2.0) / k
 
 alpha = -(k * 2.0 * qe * q) / (2.0 * mp)  # Constant used in stepping
 
