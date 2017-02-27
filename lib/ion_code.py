@@ -198,7 +198,6 @@ for k in range(n):
     g = np.where((E0 >= l) & (E0 < u))
     ng = len(g[0])
     if ng > 0:
-
         hist[k] = ng / (u - l)
         histerr[k] = np.sqrt(ng) / (u - l)
         X[k] = (u + l) / 2
