@@ -52,7 +52,7 @@ for i in range(Nelectrons):
     #vy[0, i] = ((2.0 * E0[i] * 1.0E-30 / mp)**.5) * .5  # units of m/s
 
 
-@jit(cache=True, nogil=True)
+@jit(cache=True)
 def rk4_method(Nelectrons, n, deltat, x, y, vx, vy, alpha):
     for j in range(n-1):
         for k in range(Nelectrons):
