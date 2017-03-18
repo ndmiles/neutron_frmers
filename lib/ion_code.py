@@ -48,8 +48,8 @@ E0 = E0.flatten()
 
 for i in range(Nelectrons):
     vx[0, i] = ((2.0 * E0[i] / mp)**.5) * 1.5e-10  # units of m/s
-    #vy[0, i] = ((2.0 * E0[i] / mp)**.5) * 5.0e-2  # units of m/s
-    #vy[0, i] = ((2.0 * E0[i] * 1.0E-30 / mp)**.5) * .5  # units of m/s
+    # vy[0, i] = ((2.0 * E0[i] / mp)**.5) * 5.0e-2  # units of m/s
+    # vy[0, i] = ((2.0 * E0[i] * 1.0E-30 / mp)**.5) * .5  # units of m/s
 
 
 @jit(cache=True)
@@ -96,7 +96,7 @@ print("done in %.4f seconds" % (time.time() - start))
 
 # Ion trajectory plot
 plt.figure()
-#plt.plot(x, y, linewidth=2)
+# plt.plot(x, y, linewidth=2)
 plt.title('Ion Trajectory inside a Coulomb Potential')
 plt.xlabel('X (m)')
 plt.ylabel('Y (m)')
@@ -123,7 +123,7 @@ plt.show()
 plt.close()
 
 # Store the ion_data into an array that will be written to a file
-ion_data = np.zeros([len(x[:,0]), 24])
+ion_data = np.zeros([len(x[:, 0]), 24])
 ion_data[:, 0] = x[:, 0]
 ion_data[:, 1] = y[:, 0]
 ion_data[:, 2] = vx[:, 0]
@@ -152,8 +152,8 @@ output_file = 'ion_trajectory_data.txt'  # Name of ion trajectory data file
 np.savetxt(X=ion_data, fname=output_file)  # Save the ion trajectory data
 
 # Save the initial parameters used to produce the trajectories
-ion_initial_data = np.zeros([len(x[0,:]), 2])
-ion_initial_data[:, 0] = np.arange(1,101)
+ion_initial_data = np.zeros([len(x[0, :]), 2])
+ion_initial_data[:, 0] = np.arange(1, 101)
 ion_initial_data[:, 1] = E0
 output_file = 'ion_trajectory_energy_data.txt'
 np.savetxt(X=ion_initial_data, fname=output_file)
