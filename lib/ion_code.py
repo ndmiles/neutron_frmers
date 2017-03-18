@@ -1,9 +1,11 @@
 #! /usr/bin/env python3
 
-# A Python 3.5 port of iontraj_rk4.pro
+# A Python 3.6 port of iontraj_rk4.pro
 
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
+import time
+from numba import jit
 
 
 # Define constants
@@ -14,8 +16,7 @@ k = 1.0 / (4.0 * PI * epsilon_0)  # Coulomb force constant
 me = 9.10938188E-31               # electron rest mass (kg)
 mp = 1.67262158E-27               # proton rest mass (kg)
 
-
-q = 200.0e3 * (2.0e-2 ** 2.0) / k
+q = 200.0e3 * (2.0e-2**2.0) / k
 
 alpha = -(k * 2.0 * qe * q) / (2.0 * mp)  # Constant used in stepping
 
@@ -51,40 +52,47 @@ for i in range(Nelectrons):
     #vy[0, i] = ((2.0 * E0[i] * 1.0E-30 / mp)**.5) * .5  # units of m/s
 
 
-for k in range(Nelectrons):
+@jit(cache=True, nogil=True)
+def rk4_method(Nelectrons, n, deltat, x, y, vx, vy, alpha):
     for j in range(n-1):
+        for k in range(Nelectrons):
 
-        k1x = vx[j, k] * deltat
-        k2x = (vx[j, k] + (k1x / 2.0)) * deltat
-        k3x = (vx[j, k] + (k2x / 2.0)) * deltat
-        k4x = (vx[j, k] + k3x) * deltat
+            k1x = vx[j, k] * deltat
+            k2x = (vx[j, k] + (k1x / 2)) * deltat
+            k3x = (vx[j, k] + (k2x / 2)) * deltat
+            k4x = (vx[j, k] + k3x) * deltat
 
-        x[j+1, k] = x[j, k] + (k1x + (2.0 * k2x) + (2.0 * k3x + k4x)) / 6.0
+            x[j+1, k] = x[j, k] + (k1x + 2*k2x + 2*k3x + k4x) / 6
 
-        k1y = vy[j, k] * deltat
-        k2y = (vy[j, k] + k1y / 2.0) * deltat
-        k3y = (vy[j, k] + k2y / 2.0) * deltat
-        k4y = (vy[j, k] + k3y) * deltat
+            k1y = vy[j, k] * deltat
+            k2y = (vy[j, k] + k1y / 2) * deltat
+            k3y = (vy[j, k] + k2y / 2) * deltat
+            k4y = (vy[j, k] + k3y) * deltat
 
-        y[j+1, k] = y[j, k] + (k1y + (2.0 * k2y) + (2.0 * k3y + k4y)) / 6.0
+            y[j+1, k] = y[j, k] + (k1y + 2*k2y + 2*k3y + k4y) / 6
 
-        temp_dvx = ((alpha * x[j, k]) / (x[j, k]**2.0 + y[j, k]**2.0)**(3.0 / 2.0))
+            temp_dvx = ((alpha * x[j, k]) / (x[j, k]**2 + y[j, k]**2)**(3/2))
 
-        k1vx = temp_dvx * deltat
-        k2vx = (temp_dvx + k1x / 2.0) * deltat
-        k3vx = (temp_dvx + k2x / 2.0) * deltat
-        k4vx = (temp_dvx + k3x) * deltat
+            k1vx = temp_dvx * deltat
+            k2vx = (temp_dvx + k1x / 2) * deltat
+            k3vx = (temp_dvx + k2x / 2) * deltat
+            k4vx = (temp_dvx + k3x) * deltat
 
-        vx[j+1, k] = vx[j, k] + (k1vx + (2.0 * k2vx) + (2.0 * k3vx + k4vx)) / 6.0
+            vx[j+1, k] = vx[j, k] + (k1vx + 2*k2vx + 2*k3vx + k4vx) / 6
 
-        temp_dvy = ((alpha * y[j, k]) / (x[j, k]**2.0 + y[j, k]**2.0)**(3.0 / 2.0))
+            temp_dvy = ((alpha * y[j, k]) / (x[j, k]**2 + y[j, k]**2)**(3/2))
 
-        k1vy = temp_dvy * deltat
-        k2vy = (temp_dvy + k1x / 2.0) * deltat
-        k3vy = (temp_dvy + k2x / 2.0) * deltat
-        k4vy = (temp_dvy + k3x) * deltat
+            k1vy = temp_dvy * deltat
+            k2vy = (temp_dvy + k1x / 2) * deltat
+            k3vy = (temp_dvy + k2x / 2) * deltat
+            k4vy = (temp_dvy + k3x) * deltat
 
-        vy[j+1, k] = vy[j, k] + (k1vy + (2.0 * k2vy) + (2.0 * k3vy + k4vy)) / 6.0
+            vy[j+1, k] = vy[j, k] + (k1vy + 2*k2vy + 2*k3vy + k4vy) / 6
+
+start = time.time()
+rk4_method(Nelectrons, n, deltat, x, y, vx, vy, alpha)
+print("done in %.4f seconds" % (time.time() - start))
+
 
 # Ion trajectory plot
 plt.figure()
@@ -198,6 +206,7 @@ for k in range(n):
     g = np.where((E0 >= l) & (E0 < u))
     ng = len(g[0])
     if ng > 0:
+
         hist[k] = ng / (u - l)
         histerr[k] = np.sqrt(ng) / (u - l)
         X[k] = (u + l) / 2
