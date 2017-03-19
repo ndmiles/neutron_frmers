@@ -32,8 +32,7 @@ y = np.zeros([n, Nelectrons], dtype=np.float64)
 vx = np.zeros([n, Nelectrons], dtype=np.float64)
 vy = np.zeros([n, Nelectrons], dtype=np.float64)
 
-y[0, 0:Nelectrons] = 0.02  # Replaces the for loop in the IDL code
-
+y[0, :Nelectrons] = 0.02  # Replaces the for loop in the IDL code
 
 seed = 1
 
